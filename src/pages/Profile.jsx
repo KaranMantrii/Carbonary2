@@ -56,14 +56,16 @@ export default function Profile() {
         </div>
 
         <div className="cyber-panel p-5">
-          <label className="text-sm text-slate-300 font-medium block mb-4">Primary Goal</label>
-          <div className="space-y-3">
+          <label id="goal-group-label" className="text-sm text-slate-300 font-medium block mb-4">Primary Goal</label>
+          <div className="space-y-3" role="radiogroup" aria-labelledby="goal-group-label">
             {goals.map((g) => {
               const Icon = g.icon;
               const isSelected = inputGoal === g.id;
               return (
                 <button
                   key={g.id}
+                  role="radio"
+                  aria-checked={isSelected}
                   onClick={() => setInputGoal(g.id)}
                   className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 ${
                     isSelected 
@@ -79,16 +81,22 @@ export default function Profile() {
               );
             })}
           </div>
+        </div>
+        
         <div className="cyber-panel p-5">
-          <label className="text-sm text-slate-300 font-medium block mb-4">Carbon Twin Base Style</label>
-          <div className="grid grid-cols-3 gap-3">
+          <label id="twin-group-label" className="text-sm text-slate-300 font-medium block mb-4">Carbon Twin Base Style</label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3" role="radiogroup" aria-labelledby="twin-group-label">
             {[
               { id: "forest", title: "Forest Spirit", img: "/forest_avatar.png" },
               { id: "cyber", title: "Cyber-Eco", img: "/cyber_avatar.png" },
-              { id: "ocean", title: "Oceanic", img: "/ocean_avatar.png" }
+              { id: "ocean", title: "Oceanic", img: "/ocean_avatar.png" },
+              { id: "space", title: "Galactic", img: "/space_avatar.png" },
+              { id: "solar", title: "Solarpunk", img: "/solar_avatar.png" }
             ].map((style) => (
               <button
                 key={style.id}
+                role="radio"
+                aria-checked={inputTwin === style.id}
                 onClick={() => setInputTwin(style.id)}
                 className={`relative flex flex-col items-center gap-2 p-2 rounded-xl border transition-all duration-300 overflow-hidden ${
                   inputTwin === style.id 
@@ -121,7 +129,6 @@ export default function Profile() {
           )}
         </button>
       </div>
-    </div>
     </div>
   );
 }

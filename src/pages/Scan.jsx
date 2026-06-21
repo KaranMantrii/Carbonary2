@@ -19,7 +19,8 @@ export default function Scan() {
       formData.append("file", file);
 
       try {
-        const response = await fetch("http://localhost:8000/scan-receipt/", {
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+        const response = await fetch(`${API_URL}/scan-receipt/`, {
           method: "POST",
           body: formData,
         });
@@ -74,7 +75,7 @@ export default function Scan() {
       {!results ? (
         <div className="flex flex-col items-center justify-center space-y-6 mt-12">
           {error && (
-            <div className="bg-red-500/20 border border-red-500/50 text-red-200 text-sm p-4 rounded-xl text-center w-full max-w-md">
+            <div role="alert" className="bg-red-500/20 border border-red-500/50 text-red-200 text-sm p-4 rounded-xl text-center w-full max-w-md">
               {error}
             </div>
           )}
@@ -88,6 +89,7 @@ export default function Scan() {
             <button 
               onClick={() => fileInputRef.current?.click()}
               disabled={isScanning}
+              aria-label={isScanning ? "Analyzing receipt" : "Tap to scan receipt"}
               className="relative w-48 h-64 cyber-panel flex flex-col items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition-all overflow-hidden"
             >
               {isScanning ? (
@@ -124,6 +126,7 @@ export default function Scan() {
             ref={fileInputRef} 
             className="hidden" 
             accept="image/*"
+            aria-label="Upload receipt image"
             onChange={handleFileUpload}
           />
         </div>
@@ -132,7 +135,7 @@ export default function Scan() {
           <h2 className="text-lg font-semibold mb-4 text-white">Impact Insights</h2>
           <div className="space-y-3">
             {results.map((res, idx) => (
-              <div key={idx} className="cyber-panel p-4 flex items-center justify-between">
+              <div key={`${res.item}-${idx}`} className="cyber-panel p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-full ${res.bg} flex items-center justify-center ${res.color}`}>
                     <res.icon size={20} weight="duotone" />

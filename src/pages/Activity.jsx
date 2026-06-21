@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Footprints, Desktop, Lightning, Leaf, Play, WarningCircle, Info } from "@phosphor-icons/react";
 import { useAppContext } from "../context/AppContext";
 
@@ -14,6 +14,9 @@ export default function Activity() {
   const [inputHours, setInputHours] = useState(Math.floor(screenTimeMinutes / 60));
   const [inputMinutes, setInputMinutes] = useState(screenTimeMinutes % 60);
 
+  // Manual Steps State
+  const [manualSteps, setManualSteps] = useState("");
+
   // Carbon Math for Steps
   const carbonSavedGrams = (steps * 0.13).toFixed(1);
   const smartphoneCharges = Math.floor((steps * 0.13) / 8);
@@ -24,7 +27,7 @@ export default function Activity() {
   // 1 kettle boil = approx 15 grams CO2
   const kettlesEquivalent = Math.floor(screenCarbonFootprint / 15);
 
-  const handleDeviceMotion = (event) => {
+  const handleDeviceMotion = useCallback((event) => {
     // Simple peak detection for step counting
     const acc = event.accelerationIncludingGravity;
     if (!acc) return;
@@ -42,7 +45,7 @@ export default function Activity() {
         lastStepTime.current = now;
       }
     }
-  };
+  }, [setSteps, setCarbonSaved]);
 
   const startTracking = async () => {
     // Request permission for iOS 13+ devices
@@ -80,10 +83,20 @@ export default function Activity() {
     return () => {
       window.removeEventListener("devicemotion", handleDeviceMotion);
     };
-  }, []);
+  }, [handleDeviceMotion]);
 
   const handleScreenTimeUpdate = () => {
-    const totalMinutes = (parseInt(inputHours) || 0) * 60 + (parseInt(inputMinutes) || 0);
+    let hours = parseInt(inputHours) || 0;
+    let minutes = parseInt(inputMinutes) || 0;
+    
+    // Validation
+    hours = Math.max(0, Math.min(24, hours));
+    minutes = Math.max(0, Math.min(59, minutes));
+    
+    setInputHours(hours);
+    setInputMinutes(minutes);
+
+    const totalMinutes = hours * 60 + minutes;
     setScreenTimeMinutes(totalMinutes);
     // 1g CO2 per minute of screen time
     setCarbonGenerated(totalMinutes * 1);
@@ -113,7 +126,7 @@ export default function Activity() {
               </div>
             </div>
             {isTracking ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" role="status" aria-live="polite">
                 <span className="relative flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
@@ -133,24 +146,25 @@ export default function Activity() {
           {/* Manual Step Input */}
           <div className="flex gap-4 mb-4">
             <div className="flex-1">
-              <label className="text-xs text-slate-400 block mb-1">Add Steps Manually</label>
+              <label htmlFor="manual-steps-input" className="text-xs text-slate-400 block mb-1">Add Steps Manually</label>
               <input 
                 type="number" 
                 min="0"
                 placeholder="e.g. 500"
                 id="manual-steps-input"
+                value={manualSteps}
+                onChange={(e) => setManualSteps(e.target.value)}
                 className="w-full bg-white/5 border border-glass-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-green-500/50"
               />
             </div>
             <div className="flex items-end">
               <button 
                 onClick={() => {
-                  const input = document.getElementById('manual-steps-input');
-                  const val = parseInt(input.value) || 0;
+                  const val = Math.min(100000, Math.max(0, parseInt(manualSteps) || 0));
                   if(val > 0) {
                     setSteps(prev => prev + val);
                     setCarbonSaved(prev => prev + (val * 0.13));
-                    input.value = '';
+                    setManualSteps("");
                     addXp(5);
                   }
                 }}
@@ -168,9 +182,9 @@ export default function Activity() {
           )}
           
           <div className="bg-white/5 rounded-xl p-4 border border-glass-border">
-            <h3 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
               <Leaf size={16} className="text-green-400" /> Carbon Saved
-            </h3>
+            </h2>
             <p className="text-2xl font-bold text-green-400 mb-1">{carbonSavedGrams}g CO₂</p>
             <p className="text-sm text-slate-400">
               Equivalent to charging your smartphone <strong className="text-white">{smartphoneCharges} times</strong>!
@@ -194,8 +208,9 @@ export default function Activity() {
 
           <div className="flex gap-4 mb-4">
             <div className="flex-1">
-              <label className="text-xs text-slate-400 block mb-1">Hours</label>
+              <label htmlFor="input-hours" className="text-xs text-slate-400 block mb-1">Hours</label>
               <input 
+                id="input-hours"
                 type="number" 
                 min="0"
                 max="24"
@@ -205,8 +220,9 @@ export default function Activity() {
               />
             </div>
             <div className="flex-1">
-              <label className="text-xs text-slate-400 block mb-1">Minutes</label>
+              <label htmlFor="input-minutes" className="text-xs text-slate-400 block mb-1">Minutes</label>
               <input 
+                id="input-minutes"
                 type="number" 
                 min="0"
                 max="59"

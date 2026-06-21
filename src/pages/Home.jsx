@@ -1,19 +1,21 @@
-import { Tree, Fire, Target, TrendUp, Scales, Books, Sparkle, Trophy } from "@phosphor-icons/react";
+import { useMemo } from "react";
+import { Tree, Target, Scales, Books, Sparkle, Trophy } from "@phosphor-icons/react";
 import { useAppContext } from "../context/AppContext";
 import { Link } from "react-router-dom";
+
+const TWIN_IMAGES = {
+  forest: { thriving: "/utopian.png", stable: "https://images.unsplash.com/photo-1511497584788-876760111969?w=400&q=80", struggling: "/dystopian.png" },
+  cyber: { thriving: "https://images.unsplash.com/photo-1518002171953-a080ee817e1f?w=400&q=80", stable: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80", struggling: "https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?w=400&q=80" },
+  ocean: { thriving: "https://images.unsplash.com/photo-1582967635903-b097dc68434d?w=400&q=80", stable: "https://images.unsplash.com/photo-1498623116890-37e912163d5d?w=400&q=80", struggling: "https://images.unsplash.com/photo-1611273426858-450d8ce3ca8c?w=400&q=80" },
+  space: { thriving: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&q=80", stable: "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=400&q=80", struggling: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80" },
+  solar: { thriving: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80", stable: "https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=400&q=80", struggling: "https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?w=400&q=80" }
+};
 
 export default function Home() {
   const { xp, rank, name, netCarbonScore, carbonSaved, carbonGenerated, challenges, twinState, twinStyle, steps, screenTimeMinutes } = useAppContext();
   const xpProgress = rank.next === "MAX" ? 100 : (xp / rank.next) * 100;
 
-  // Derive Twin UI based on state and style
-  const twinImages = {
-    forest: { thriving: "/utopian.png", stable: "https://images.unsplash.com/photo-1511497584788-876760111969?w=400&q=80", struggling: "/dystopian.png" },
-    cyber: { thriving: "https://images.unsplash.com/photo-1518002171953-a080ee817e1f?w=400&q=80", stable: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80", struggling: "https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?w=400&q=80" },
-    ocean: { thriving: "https://images.unsplash.com/photo-1582967635903-b097dc68434d?w=400&q=80", stable: "https://images.unsplash.com/photo-1498623116890-37e912163d5d?w=400&q=80", struggling: "https://images.unsplash.com/photo-1611273426858-450d8ce3ca8c?w=400&q=80" }
-  };
-
-  const currentImg = twinImages[twinStyle]?.[twinState] || twinImages.forest.stable;
+  const currentImg = TWIN_IMAGES[twinStyle]?.[twinState] || TWIN_IMAGES.forest.stable;
 
   const twinConfig = {
     thriving: { img: currentImg, label: "Thriving", color: "text-green-400", border: "border-green-500/50" },
@@ -57,7 +59,7 @@ export default function Home() {
           <Sparkle className="text-purple-400" weight="duotone" /> AI Carbon Twin
         </h2>
         <div className={`relative w-full h-48 border border-cyan-500/30 transition-colors duration-700`} style={{ clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)' }}>
-          <img src={currentTwin.img} alt="Carbon Twin" className="object-cover w-full h-full opacity-80 mix-blend-screen" />
+          <img src={currentTwin.img} alt="Carbon Twin" width="400" height="400" loading="lazy" className="object-cover w-full h-full opacity-80 mix-blend-screen" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
           
           {/* Cyber Decor Lines */}
@@ -132,7 +134,7 @@ export default function Home() {
         </h2>
         <div className="cyber-panel p-4 border-l-4 border-cyan-500">
           <p className="text-sm text-slate-300 leading-relaxed italic">
-            "Today you walked {Math.floor(carbonSaved / 13)} steps and avoided approx {carbonSaved}g CO₂. Most of your emissions came from digital activity. Tomorrow's challenge is to replace one short vehicle trip with walking."
+            "Today you walked {steps} steps and avoided approx {carbonSaved.toFixed(1)}g CO₂. Most of your emissions came from digital activity. Tomorrow's challenge is to replace one short vehicle trip with walking."
           </p>
           <div className="mt-3 flex justify-end">
             <Link to="/coach" className="text-xs text-indigo-400 font-semibold hover:text-indigo-300">Chat with Coach &rarr;</Link>
@@ -181,7 +183,7 @@ export default function Home() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-green-500/20 rounded-full blur-[60px] animate-pulse"></div>
           
           {/* Tree Logic */}
-          {(() => {
+          {useMemo(() => {
             const totalSaved = carbonSaved;
             const stages = [
               { threshold: 0, img: "/tree_stage_1.png", name: "Seedling", next: 200 },
@@ -192,7 +194,6 @@ export default function Home() {
               { threshold: 5000, img: "/tree_stage_6.png", name: "Ancient World Tree", next: "MAX" }
             ];
             
-            // Find current stage
             let currentStageIndex = 0;
             for (let i = stages.length - 1; i >= 0; i--) {
               if (totalSaved >= stages[i].threshold) {
@@ -214,6 +215,9 @@ export default function Home() {
                   <img 
                     src={stage.img} 
                     alt={stage.name} 
+                    loading="lazy"
+                    width="192"
+                    height="192"
                     className="w-full h-full object-contain animate-in zoom-in-90 fade-in duration-1000"
                   />
                 </div>
@@ -235,7 +239,7 @@ export default function Home() {
                 </div>
               </div>
             );
-          })()}
+          }, [carbonSaved])}
         </div>
       </section>
 

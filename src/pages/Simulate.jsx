@@ -95,7 +95,7 @@ export default function Simulate() {
       </header>
 
       {/* Timeframe Toggles */}
-      <div className="flex bg-white/5 rounded-xl p-1 mb-8 border border-glass-border">
+      <div className="flex bg-white/5 rounded-xl p-1 mb-8 border border-glass-border" role="radiogroup" aria-label="Simulation Timeframe">
         {[
           { label: "1 Month", value: 1 },
           { label: "1 Year", value: 12 },
@@ -103,6 +103,8 @@ export default function Simulate() {
         ].map(tf => (
           <button
             key={tf.value}
+            role="radio"
+            aria-checked={timeframe === tf.value}
             onClick={() => setTimeframe(tf.value)}
             className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
               timeframe === tf.value ? "bg-purple-500 text-white shadow-md" : "text-slate-400 hover:text-white"
@@ -114,9 +116,9 @@ export default function Simulate() {
       </div>
 
       {simulationState === "result" && (
-        <div className="mb-8 animate-in zoom-in-95 fade-in duration-700">
+        <div className="mb-8 animate-in zoom-in-95 fade-in duration-700" role="status" aria-live="polite">
           <div className="relative w-full h-64 rounded-2xl overflow-hidden mb-4 shadow-2xl border border-white/10">
-            <img src={currentImage} alt="Future Earth" className="object-cover w-full h-full" />
+            <img src={currentImage} alt="Future Earth" loading="lazy" className="object-cover w-full h-full" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
             <div className="absolute bottom-4 left-4 right-4">
               <h2 className="text-xl font-bold text-white mb-1">
@@ -164,7 +166,7 @@ export default function Simulate() {
             </div>
             <span className="text-lg font-bold text-white">{commute}</span>
           </div>
-          <input type="range" min="0" max="7" value={commute} onChange={e => setCommute(parseInt(e.target.value))} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"/>
+          <input type="range" aria-label="Drive to work days per week" min="0" max="7" value={commute} onChange={e => setCommute(parseInt(e.target.value))} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"/>
         </div>
 
         <div className="cyber-panel p-4">
@@ -174,7 +176,7 @@ export default function Simulate() {
             </div>
             <span className="text-lg font-bold text-white">{publicTransport}</span>
           </div>
-          <input type="range" min="0" max="7" value={publicTransport} onChange={e => setPublicTransport(parseInt(e.target.value))} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"/>
+          <input type="range" aria-label="Public transit days per week" min="0" max="7" value={publicTransport} onChange={e => setPublicTransport(parseInt(e.target.value))} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"/>
         </div>
 
         <div className="cyber-panel p-4">
@@ -184,7 +186,7 @@ export default function Simulate() {
             </div>
             <span className="text-lg font-bold text-white">{meat}</span>
           </div>
-          <input type="range" min="0" max="21" value={meat} onChange={e => setMeat(parseInt(e.target.value))} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"/>
+          <input type="range" aria-label="Meat meals per week" min="0" max="21" value={meat} onChange={e => setMeat(parseInt(e.target.value))} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"/>
         </div>
 
         <div className="cyber-panel p-4">
@@ -194,7 +196,7 @@ export default function Simulate() {
             </div>
             <span className="text-lg font-bold text-white">{delivery}</span>
           </div>
-          <input type="range" min="0" max="10" value={delivery} onChange={e => setDelivery(parseInt(e.target.value))} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-pink-500"/>
+          <input type="range" aria-label="Food delivery per week" min="0" max="10" value={delivery} onChange={e => setDelivery(parseInt(e.target.value))} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-pink-500"/>
         </div>
 
         <div className="cyber-panel p-4">
@@ -204,7 +206,7 @@ export default function Simulate() {
             </div>
             <span className="text-lg font-bold text-white">{electricity}</span>
           </div>
-          <input type="range" min="100" max="1000" step="50" value={electricity} onChange={e => setElectricity(parseInt(e.target.value))} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-yellow-500"/>
+          <input type="range" aria-label="Electricity usage in kWh" min="100" max="1000" step="50" value={electricity} onChange={e => setElectricity(parseInt(e.target.value))} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-yellow-500"/>
         </div>
 
         <button 

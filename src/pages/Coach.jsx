@@ -1,39 +1,53 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { PaperPlaneRight, Robot } from "@phosphor-icons/react";
 
 export default function Coach() {
   const [messages, setMessages] = useState([
-    { id: 1, text: "Hi! I'm your Carbon Coach. Ready to plan some eco-friendly changes this week?", sender: "bot" }
+    { id: crypto.randomUUID(), text: "Hi! I'm your Carbon Coach. Ready to plan some eco-friendly changes this week?", sender: "bot" }
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping]);
+  }, [messages, isTyping, scrollToBottom]);
+
+  const timeoutRef = useRef(null);
+  
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    }
+  }, []);
 
   const handleSend = (e) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMsg = { id: Date.now(), text: input, sender: "user" };
+    const userMsg = { id: crypto.randomUUID(), text: input, sender: "user" };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsTyping(true);
 
     // Mock Gemini API Response
-    setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       setIsTyping(false);
+      const responses = [
+        "That's a great goal! Taking the train instead of driving for your weekend trip can reduce your footprint by about 75%.",
+        "Interesting point. Did you know a plant-based meal saves roughly 2kg of CO2 compared to a beef burger?",
+        "I can help you track that. Small habits compound into massive environmental savings!",
+        "Excellent idea. Let me know how that goes."
+      ];
       setMessages((prev) => [
         ...prev,
         { 
-          id: Date.now() + 1, 
-          text: "That's a great goal! Taking the train instead of driving for your weekend trip can reduce your footprint by about 75% for that journey. Should I add a reminder for you?", 
+          id: crypto.randomUUID(), 
+          text: responses[Math.floor(Math.random() * responses.length)], 
           sender: "bot" 
         }
       ]);
@@ -56,7 +70,7 @@ export default function Coach() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6" role="log" aria-live="polite" aria-label="Chat messages">
         {messages.map((msg) => (
           <div 
             key={msg.id} 
@@ -92,10 +106,12 @@ export default function Coach() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask your coach anything..."
+            aria-label="Type a message"
             className="w-full bg-white/5 border border-glass-border rounded-full py-3 pl-5 pr-12 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
           />
           <button 
             type="submit"
+            aria-label="Send message"
             className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white hover:bg-purple-600 transition-colors"
           >
             <PaperPlaneRight size={16} weight="fill" />

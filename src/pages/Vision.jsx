@@ -1,7 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Camera, Scan as ScanIcon, WarningCircle, Leaf, HandPointing, Crosshair } from "@phosphor-icons/react";
 import { useAppContext } from "../context/AppContext";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default function Vision() {
   const [isScanning, setIsScanning] = useState(false);
@@ -15,7 +14,7 @@ export default function Vision() {
   const { setCarbonGenerated } = useAppContext();
 
   // Initialize camera
-  const startCamera = async () => {
+  const startCamera = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: "environment" } 
@@ -31,20 +30,20 @@ export default function Vision() {
       console.error("Camera access denied:", err);
       setErrorMsg("Camera access denied or unavailable.");
     }
-  };
+  }, []);
 
-  const stopCamera = () => {
+  const stopCamera = useCallback(() => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
     setIsCameraActive(false);
-  };
+  }, []);
 
   useEffect(() => {
     startCamera();
     return () => stopCamera();
-  }, []);
+  }, [startCamera, stopCamera]);
 
   const handleCapture = async () => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -61,43 +60,29 @@ export default function Vision() {
     const base64Image = canvas.toDataURL("image/jpeg", 0.8).split(",")[1];
     
     try {
-      /**
-       * SECURITY DISCLAIMER: 
-       * This project uses the Gemini API directly from the client for demonstration purposes.
-       * In a production environment, this request should be routed through a secure backend proxy
-       * to prevent exposing the VITE_GEMINI_API_KEY in the client bundle.
-       */
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) throw new Error("API key missing. Using simulation fallback.");
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const res = await fetch(`${API_URL}/api/vision`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ image: base64Image })
+      });
 
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-      const prompt = `You are a cyberpunk environmental scanner HUD. Analyze this image. Identify the primary object. 
-      Return ONLY a raw JSON object (no markdown formatting, no code blocks) with the following exact keys:
-      {
-        "object": "Name of object",
-        "carbonCost": 500, // integer, estimated CO2 grams to produce it
-        "impact": "High", // 'Low', 'Medium', 'High', or 'Critical'
-        "explanation": "Brief 1 sentence cyberpunk-style analysis of why it costs this much carbon.",
-        "alternatives": ["Greener alternative 1", "Greener alternative 2"]
-      }`;
-
-      const imageParts = [{
-        inlineData: {
-          data: base64Image,
-          mimeType: "image/jpeg"
-        }
-      }];
-
-      const result = await model.generateContent([prompt, ...imageParts]);
-      let responseText = result.response.text().trim();
-      // Clean markdown if model ignores instructions
-      if(responseText.startsWith('\`\`\`json')) {
-         responseText = responseText.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
+      if (!res.ok) {
+        throw new Error("AI backend processing failed.");
       }
+
+      const rawData = await res.json();
+      let responseText = rawData.response;
+      
+      // Clean markdown if model ignores instructions
+      responseText = responseText.replace(/^```(?:json|JSON)?\s*\n?/gm, '').replace(/\n?```\s*$/gm, '').trim();
       
       const data = JSON.parse(responseText);
+      if (!data?.object || !data?.impact || typeof data?.carbonCost !== 'number') {
+        throw new Error("Malformed AI response");
+      }
       
       const impactConfig = {
         Low: { color: "text-green-400", bg: "bg-green-500/20" },
@@ -106,15 +91,17 @@ export default function Vision() {
         Critical: { color: "text-red-500", bg: "bg-red-500/20" },
       };
       
-      const conf = impactConfig[data.impact] || impactConfig.Medium;
+      // Default to medium if not matched precisely, capitalize first letter to match keys
+      const safeImpact = data.impact.charAt(0).toUpperCase() + data.impact.slice(1).toLowerCase();
+      const conf = impactConfig[safeImpact] || impactConfig.Medium;
 
       setResult({
         object: data.object.toUpperCase(),
-        impact: data.impact.toUpperCase(),
+        impact: safeImpact.toUpperCase(),
         impactColor: conf.color,
         impactBg: conf.bg,
-        explanation: data.explanation,
-        alternatives: data.alternatives,
+        explanation: data.explanation || "",
+        alternatives: data.alternatives || [],
         carbonCost: data.carbonCost
       });
       
@@ -133,7 +120,6 @@ export default function Vision() {
         alternatives: ["Re-establish connection.", "Attempt manual override."],
         carbonCost: 999
       });
-      setCarbonGenerated(prev => prev + 999);
     } finally {
       setIsScanning(false);
       stopCamera();
@@ -159,7 +145,7 @@ export default function Vision() {
       </header>
 
       {errorMsg && (
-        <div className="mb-4 p-3 border border-red-500/50 bg-red-500/10 rounded-lg text-xs text-red-400 font-mono">
+        <div role="alert" className="mb-4 p-3 border border-red-500/50 bg-red-500/10 rounded-lg text-xs text-red-400 font-mono">
           [SYS_ERR]: {errorMsg}
         </div>
       )}
@@ -175,7 +161,8 @@ export default function Vision() {
               ref={videoRef} 
               autoPlay 
               playsInline 
-              muted 
+              muted
+              aria-label="Live camera feed"
               className="absolute inset-0 w-full h-full object-cover grayscale opacity-60 mix-blend-screen"
             ></video>
 
@@ -201,6 +188,7 @@ export default function Vision() {
           <button 
             onClick={handleCapture}
             disabled={isScanning || !isCameraActive}
+            aria-label="Capture and scan object"
             className="w-full py-4 cyber-button text-lg disabled:opacity-50 disabled:cursor-not-allowed glitch-hover"
           >
             {isScanning ? "UPLINKING..." : "[ INITIATE SCAN ]"}
@@ -231,7 +219,7 @@ export default function Vision() {
             </h3>
             <ul className="space-y-3 mb-2 font-mono text-xs">
               {result.alternatives.map((alt, idx) => (
-                <li key={idx} className="flex items-start gap-3 text-slate-400 bg-white/5 p-3 rounded-sm border border-white/5">
+                <li key={alt} className="flex items-start gap-3 text-slate-400 bg-white/5 p-3 rounded-sm border border-white/5">
                   <div className="mt-1 w-1.5 h-1.5 bg-green-400 shrink-0 shadow-[0_0_5px_#4ade80]"></div>
                   {alt}
                 </li>

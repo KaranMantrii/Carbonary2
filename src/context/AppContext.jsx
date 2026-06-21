@@ -7,7 +7,7 @@ import { createContext, useState, useContext, useEffect, useMemo, useCallback } 
  * @property {string} twinState - The health of the digital twin ('thriving', 'stable', 'struggling').
  * @property {string} systemStatus - The glitch status ('NORMAL' or 'CORRUPTED').
  */
-const AppContext = createContext();
+export const AppContext = createContext();
 
 export const useAppContext = () => useContext(AppContext);
 
@@ -83,13 +83,13 @@ export const AppProvider = ({ children }) => {
     name, setName, goal, setGoal, xp, addXp, rank, 
     steps, setSteps, screenTimeMinutes, setScreenTimeMinutes,
     carbonSaved, addCarbonSaved, setCarbonSaved, carbonGenerated, addCarbonGenerated, setCarbonGenerated, netCarbonScore,
-    challenges, setChallenges, leagueData, twinState, twinStyle, setTwinStyle,
+    challenges, setChallenges, leagueData, setLeagueData, twinState, twinStyle, setTwinStyle,
     systemStatus
   }), [
-    name, goal, xp, addXp, rank, 
-    steps, screenTimeMinutes, 
-    carbonSaved, addCarbonSaved, carbonGenerated, addCarbonGenerated, netCarbonScore, 
-    challenges, leagueData, twinState, twinStyle, systemStatus
+    name, setName, goal, setGoal, xp, addXp, rank, 
+    steps, setSteps, screenTimeMinutes, setScreenTimeMinutes, 
+    carbonSaved, addCarbonSaved, setCarbonSaved, carbonGenerated, addCarbonGenerated, setCarbonGenerated, netCarbonScore, 
+    challenges, setChallenges, leagueData, setLeagueData, twinState, twinStyle, setTwinStyle, systemStatus
   ]);
 
   return (

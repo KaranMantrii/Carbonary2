@@ -28,6 +28,7 @@ export default function BottomNav() {
             <Link
               key={item.name}
               to={item.path}
+              aria-label={item.name}
               className={cn(
                 "flex flex-col items-center justify-center w-14 h-full relative group",
                 isActive ? "text-cyan-400" : "text-slate-500 hover:text-cyan-200"

@@ -17,14 +17,14 @@ export default function League() {
         <p className="text-sm text-slate-400">Compete with friends and local groups.</p>
       </header>
 
-      <div className="flex bg-white/5 rounded-xl p-1 mb-8 border border-glass-border">
-        <button className="flex-1 py-2 text-sm font-semibold rounded-lg bg-white/10 text-white shadow-md">
+      <div className="flex bg-white/5 rounded-xl p-1 mb-8 border border-glass-border" role="tablist" aria-label="League Categories">
+        <button role="tab" aria-selected="true" className="flex-1 py-2 text-sm font-semibold rounded-lg bg-white/10 text-white shadow-md">
           Global
         </button>
-        <button className="flex-1 py-2 text-sm font-semibold rounded-lg text-slate-400 hover:text-white">
+        <button role="tab" aria-selected="false" className="flex-1 py-2 text-sm font-semibold rounded-lg text-slate-400 hover:text-white">
           Friends
         </button>
-        <button className="flex-1 py-2 text-sm font-semibold rounded-lg text-slate-400 hover:text-white">
+        <button role="tab" aria-selected="false" className="flex-1 py-2 text-sm font-semibold rounded-lg text-slate-400 hover:text-white">
           Teams
         </button>
       </div>
