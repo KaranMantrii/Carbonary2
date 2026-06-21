@@ -150,7 +150,7 @@ export default function Activity() {
                 placeholder="e.g. 500"
                 id="manual-steps-input"
                 value={manualSteps}
-                onChange={(e) => setManualSteps(e.target.value)}
+                onChange={(e) => setManualSteps(e.target.value === '' ? '' : Number(e.target.value))}
                 className="w-full bg-white/5 border border-glass-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-green-500/50"
               />
             </div>
@@ -212,7 +212,7 @@ export default function Activity() {
                 min="0"
                 max="24"
                 value={inputHours}
-                onChange={(e) => setInputHours(e.target.value)}
+                onChange={(e) => setInputHours(e.target.value === '' ? '' : Number(e.target.value))}
                 className="w-full bg-white/5 border border-glass-border rounded-lg px-3 py-2 text-white text-center focus:outline-none focus:border-blue-500/50"
               />
             </div>
@@ -224,7 +224,7 @@ export default function Activity() {
                 min="0"
                 max="59"
                 value={inputMinutes}
-                onChange={(e) => setInputMinutes(e.target.value)}
+                onChange={(e) => setInputMinutes(e.target.value === '' ? '' : Number(e.target.value))}
                 className="w-full bg-white/5 border border-glass-border rounded-lg px-3 py-2 text-white text-center focus:outline-none focus:border-blue-500/50"
               />
             </div>
