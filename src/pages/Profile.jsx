@@ -49,9 +49,11 @@ export default function Profile() {
           <label className="text-sm text-slate-300 font-medium block mb-2">Display Name</label>
           <input
             type="text"
+            aria-label="Profile Name"
             value={inputName}
             onChange={(e) => setInputName(e.target.value)}
             className="w-full bg-white/5 border border-glass-border rounded-xl px-4 py-3 text-white text-base placeholder:text-slate-500 focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
+            placeholder="Enter your name"
           />
         </div>
 
@@ -105,7 +107,7 @@ export default function Profile() {
                 }`}
               >
                 <div className="w-full h-16 rounded-lg overflow-hidden relative">
-                  <img src={style.img} alt={style.title} className="w-full h-full object-cover" />
+                  <img src={style.img} alt="" aria-hidden="true" className="w-full h-full object-cover" />
                   {inputTwin === style.id && (
                     <div className="absolute inset-0 bg-blue-500/20 border-2 border-blue-500 rounded-lg"></div>
                   )}

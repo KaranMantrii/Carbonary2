@@ -34,7 +34,7 @@ export default function Scan() {
         let totalXp = 0;
         const processedItems = data.items.map(item => {
           totalXp += item.xp;
-          let iconProps = {};
+          let iconProps;
           
           if (item.impact === "low" || item.icon === "eco") {
             iconProps = { icon: Leaf, color: "text-green-400", bg: "bg-green-500/20", ecoText: "Excellent" };

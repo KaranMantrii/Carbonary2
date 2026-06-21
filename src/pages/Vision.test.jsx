@@ -12,7 +12,7 @@ window.HTMLMediaElement.prototype.play = vi.fn();
 window.HTMLMediaElement.prototype.pause = vi.fn();
 
 // Mock mediaDevices
-Object.defineProperty(global.navigator, 'mediaDevices', {
+Object.defineProperty(globalThis.navigator, 'mediaDevices', {
   value: {
     getUserMedia: vi.fn().mockResolvedValue({
       getTracks: () => [{ stop: vi.fn() }]

@@ -38,7 +38,6 @@ export default function League() {
         <div className="divide-y divide-white/5">
           {sortedLeague.map((user, index) => {
             const rank = index + 1;
-            const isTop3 = rank <= 3;
             
             return (
               <div 

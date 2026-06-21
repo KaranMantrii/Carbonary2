@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 const TWIN_IMAGES = {
   forest: { thriving: "/utopian.png", stable: "https://images.unsplash.com/photo-1511497584788-876760111969?w=400&q=80", struggling: "/dystopian.png" },
   cyber: { thriving: "https://images.unsplash.com/photo-1518002171953-a080ee817e1f?w=400&q=80", stable: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80", struggling: "https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?w=400&q=80" },
-  ocean: { thriving: "https://images.unsplash.com/photo-1582967635903-b097dc68434d?w=400&q=80", stable: "https://images.unsplash.com/photo-1498623116890-37e912163d5d?w=400&q=80", struggling: "https://images.unsplash.com/photo-1611273426858-450d8ce3ca8c?w=400&q=80" },
+  ocean: { thriving: "/ocean_home_stable.png", stable: "/ocean_home_stable.png", struggling: "/ocean_home_stable.png" },
   space: { thriving: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&q=80", stable: "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=400&q=80", struggling: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80" },
   solar: { thriving: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80", stable: "https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=400&q=80", struggling: "https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?w=400&q=80" }
 };
@@ -58,8 +58,8 @@ export default function Home() {
         <h2 className="text-lg font-semibold mb-3 text-white flex items-center gap-2">
           <Sparkle className="text-purple-400" weight="duotone" /> AI Carbon Twin
         </h2>
-        <div className={`relative w-full h-48 border border-cyan-500/30 transition-colors duration-700`} style={{ clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)' }}>
-          <img src={currentTwin.img} alt="Carbon Twin" width="400" height="400" loading="lazy" className="object-cover w-full h-full opacity-80 mix-blend-screen" />
+        <div className={`relative w-full h-64 border border-cyan-500/30 transition-colors duration-700`} style={{ clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)' }}>
+          <img src={currentTwin.img} alt="Carbon Twin" loading="lazy" className="object-cover object-center w-full h-full opacity-80 mix-blend-screen" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
           
           {/* Cyber Decor Lines */}

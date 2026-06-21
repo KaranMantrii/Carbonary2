@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Camera, Scan as ScanIcon, WarningCircle, Leaf, HandPointing, Crosshair } from "@phosphor-icons/react";
+import { WarningCircle, Leaf, Crosshair } from "@phosphor-icons/react";
 import { useAppContext } from "../context/AppContext";
 
 export default function Vision() {
@@ -41,6 +41,7 @@ export default function Vision() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     startCamera();
     return () => stopCamera();
   }, [startCamera, stopCamera]);
@@ -218,7 +219,7 @@ export default function Vision() {
               <Leaf weight="fill" /> Mitigation Protocols
             </h3>
             <ul className="space-y-3 mb-2 font-mono text-xs">
-              {result.alternatives.map((alt, idx) => (
+              {result.alternatives.map((alt) => (
                 <li key={alt} className="flex items-start gap-3 text-slate-400 bg-white/5 p-3 rounded-sm border border-white/5">
                   <div className="mt-1 w-1.5 h-1.5 bg-green-400 shrink-0 shadow-[0_0_5px_#4ade80]"></div>
                   {alt}

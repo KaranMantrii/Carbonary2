@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SlidersHorizontal, ArrowRight, Car, Plant, Lightning, ShoppingBag, DeviceMobile, Bus, Money, Tree, CurrencyDollar, Planet } from "@phosphor-icons/react";
+import { ArrowRight, Car, Plant, Lightning, ShoppingBag, Bus, Planet } from "@phosphor-icons/react";
 
 export default function Simulate() {
   // Sliders
@@ -8,7 +8,7 @@ export default function Simulate() {
   const [meat, setMeat] = useState(5);
   const [delivery, setDelivery] = useState(3);
   const [electricity, setElectricity] = useState(300); // kWh
-  const [screenTime, setScreenTime] = useState(4); // hours
+  const [screenTime] = useState(4); // hours
 
   // Timeframes
   const [timeframe, setTimeframe] = useState(1); // 1, 12 (1y), 60 (5y)
@@ -19,7 +19,6 @@ export default function Simulate() {
 
   // Simple logic to determine future state
   const isExtremeElectricity = electricity >= 1000;
-  const isExtremeMeat = meat >= 14;
   const isExtremeWater = electricity >= 800 && meat >= 10; // proxy for drought/desert
   
   const isDystopian = commute >= 4 || meat >= 10 || electricity > 500;
@@ -47,11 +46,7 @@ export default function Simulate() {
     }
   }
 
-  const resultStats = [
-    { label: "Carbon Reduction", value: isDystopian ? "-15%" : "+42%", color: isDystopian ? "text-orange-400" : "text-green-400" },
-    { label: "Trees Equivalent", value: isDystopian ? "Lost 50" : "Saved 120", color: isDystopian ? "text-orange-400" : "text-green-400" },
-    { label: "Money Saved", value: isDystopian ? "-$300" : "+$850", color: isDystopian ? "text-red-400" : "text-yellow-400" },
-  ];
+
 
   // Math models per month
   // Negative behaviors generate CO2, positive behaviors save CO2 (relative to baseline)

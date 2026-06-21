@@ -1,4 +1,5 @@
-import { createContext, useState, useContext, useEffect, useMemo, useCallback } from "react";
+import { createContext, useState, useContext, useMemo, useCallback } from "react";
+import PropTypes from 'prop-types';
 
 /**
  * Global application context for managing user state, carbon tracking, and UI dynamics.
@@ -7,8 +8,10 @@ import { createContext, useState, useContext, useEffect, useMemo, useCallback } 
  * @property {string} twinState - The health of the digital twin ('thriving', 'stable', 'struggling').
  * @property {string} systemStatus - The glitch status ('NORMAL' or 'CORRUPTED').
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const AppContext = createContext();
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAppContext = () => useContext(AppContext);
 
 export const AppProvider = ({ children }) => {
@@ -42,19 +45,12 @@ export const AppProvider = ({ children }) => {
   ]);
 
   // AI Carbon Twin State
-  const [twinState, setTwinState] = useState("stable");
-  const [twinStyle, setTwinStyle] = useState("forest");
-
-  useEffect(() => {
-    // Update Twin State based on Net Carbon Score (highly sensitive)
-    if (netCarbonScore >= 50) {
-      setTwinState("thriving"); // Good twin for net positive habits
-    } else if (netCarbonScore < -10) {
-      setTwinState("struggling"); // Bad twin for net negative habits
-    } else {
-      setTwinState("stable"); // Neutral
-    }
+  const twinState = useMemo(() => {
+    if (netCarbonScore >= 50) return "thriving";
+    if (netCarbonScore < -10) return "struggling";
+    return "stable";
   }, [netCarbonScore]);
+  const [twinStyle, setTwinStyle] = useState("forest");
 
   /**
    * Calculates the user's current rank tier based on their accumulated XP.
@@ -97,4 +93,8 @@ export const AppProvider = ({ children }) => {
       {children}
     </AppContext.Provider>
   );
+};
+
+AppProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };

@@ -5,9 +5,9 @@ import asyncio
 from functools import partial
 import aiofiles
 import google.generativeai as genai
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Depends, Header
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Literal, Optional
 from dotenv import load_dotenv
 
@@ -41,6 +41,15 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization", "X-API-Key"],
 )
 
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
+
 # Initialize Gemini
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY", ""))
 
@@ -70,7 +79,7 @@ class ScanResponse(BaseModel):
     items: List[ScannedItem]
 
 class VisionRequest(BaseModel):
-    image: str
+    image: str = Field(..., max_length=15_000_000)
 
 def categorize_item(text: str) -> Optional[ScannedItem]:
     """Categorize a text string as eco-friendly, high-impact, or None."""
@@ -105,16 +114,17 @@ async def scan_receipt(request: Request, file: UploadFile = File(...)):
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(status_code=400, detail=f"File type '{ext}' not allowed.")
 
-    contents = await file.read()
-    if len(contents) > MAX_FILE_SIZE_MB * 1024 * 1024:
-        raise HTTPException(status_code=413, detail="File too large.")
-
     safe_name = f"temp_{uuid.uuid4().hex}{ext}"
-    file_location = os.path.join(os.getcwd(), safe_name) # simplified temp
+    file_location = os.path.join(os.getcwd(), safe_name)
 
     try:
+        size = 0
         async with aiofiles.open(file_location, "wb") as f:
-            await f.write(contents)
+            while chunk := await file.read(1024 * 1024):
+                size += len(chunk)
+                if size > MAX_FILE_SIZE_MB * 1024 * 1024:
+                    raise HTTPException(status_code=413, detail="File too large.")
+                await f.write(chunk)
 
         loop = asyncio.get_event_loop()
         result = await loop.run_in_executor(None, partial(ocr_instance.ocr, file_location, cls=True))
@@ -133,7 +143,7 @@ async def scan_receipt(request: Request, file: UploadFile = File(...)):
         return ScanResponse(filename=file.filename or "receipt", items=extracted_items)
 
     except Exception as e:
-        logger.exception("Receipt scan failed")
+        logger.exception(f"Receipt scan failed: {e}")
         raise HTTPException(status_code=500, detail="Internal processing error")
     finally:
         if os.path.exists(file_location):
@@ -168,5 +178,5 @@ async def vision_proxy(request: Request, body: VisionRequest):
         )
         return {"response": response.text}
     except Exception as e:
-        logger.exception("Vision proxy failed")
+        logger.exception(f"Vision proxy failed: {e}")
         raise HTTPException(status_code=500, detail="AI processing error")

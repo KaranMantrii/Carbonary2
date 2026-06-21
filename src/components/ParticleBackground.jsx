@@ -1,4 +1,3 @@
-import React, { useMemo } from 'react';
 import './ParticleBackground.css';
 
 // Generate an array of particle data (position, size, delay, duration)

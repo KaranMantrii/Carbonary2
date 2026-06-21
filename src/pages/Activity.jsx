@@ -73,10 +73,7 @@ export default function Activity() {
     }
   };
 
-  const stopTracking = () => {
-    window.removeEventListener("devicemotion", handleDeviceMotion);
-    setIsTracking(false);
-  };
+
 
   // Cleanup on unmount
   useEffect(() => {

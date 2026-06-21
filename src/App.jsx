@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import CyberLoader from "./components/CyberLoader";
+import Onboarding from "./components/Onboarding";
 
 const Home = lazy(() => import("./pages/Home"));
 const Scan = lazy(() => import("./pages/Scan"));
@@ -14,8 +15,10 @@ const League = lazy(() => import("./pages/League"));
 
 function App() {
   return (
-    <HashRouter>
-      <Suspense fallback={<CyberLoader />}>
+    <>
+      <Onboarding />
+      <HashRouter>
+        <Suspense fallback={<CyberLoader />}>
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
@@ -30,6 +33,7 @@ function App() {
         </Routes>
       </Suspense>
     </HashRouter>
+    </>
   );
 }
 
