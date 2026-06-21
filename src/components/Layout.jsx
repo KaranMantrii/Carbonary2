@@ -16,7 +16,11 @@ export default function Layout() {
       <div className="cyber-bg-layer"></div>
       
       {isCorrupted && (
-        <div className="fixed inset-0 z-[100] pointer-events-none flex flex-col items-center justify-center bg-red-900/20 backdrop-blur-[2px]">
+        <div 
+          role="alert" 
+          aria-live="assertive"
+          className="fixed inset-0 z-[100] pointer-events-none flex flex-col items-center justify-center bg-red-900/20 backdrop-blur-[2px]"
+        >
           <div className="pointer-events-auto cyber-panel !border-red-500 bg-black/80 p-6 flex flex-col items-center text-center animate-pulse">
             <h2 className="text-3xl font-mono font-bold text-red-500 mb-2 glitch-text">SYSTEM CORRUPTION</h2>
             <p className="text-red-400 font-mono text-sm mb-6 max-w-[250px]">Critical carbon threshold exceeded. Neural link unstable.</p>

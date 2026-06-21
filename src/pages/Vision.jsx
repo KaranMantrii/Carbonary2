@@ -61,6 +61,12 @@ export default function Vision() {
     const base64Image = canvas.toDataURL("image/jpeg", 0.8).split(",")[1];
     
     try {
+      /**
+       * SECURITY DISCLAIMER: 
+       * This project uses the Gemini API directly from the client for demonstration purposes.
+       * In a production environment, this request should be routed through a secure backend proxy
+       * to prevent exposing the VITE_GEMINI_API_KEY in the client bundle.
+       */
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       if (!apiKey) throw new Error("API key missing. Using simulation fallback.");
 

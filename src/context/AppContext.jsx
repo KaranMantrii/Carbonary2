@@ -1,5 +1,12 @@
-import { createContext, useState, useContext, useEffect } from "react";
+import { createContext, useState, useContext, useEffect, useMemo, useCallback } from "react";
 
+/**
+ * Global application context for managing user state, carbon tracking, and UI dynamics.
+ * @typedef {Object} AppContextValue
+ * @property {number} netCarbonScore - The derived score (carbonSaved - carbonGenerated).
+ * @property {string} twinState - The health of the digital twin ('thriving', 'stable', 'struggling').
+ * @property {string} systemStatus - The glitch status ('NORMAL' or 'CORRUPTED').
+ */
 const AppContext = createContext();
 
 export const useAppContext = () => useContext(AppContext);
@@ -13,7 +20,7 @@ export const AppProvider = ({ children }) => {
   // Daily Carbon Battle (Net Score)
   const [carbonSaved, setCarbonSaved] = useState(0); // grams
   const [carbonGenerated, setCarbonGenerated] = useState(0); // grams
-  const netCarbonScore = carbonSaved - carbonGenerated;
+  const netCarbonScore = useMemo(() => carbonSaved - carbonGenerated, [carbonSaved, carbonGenerated]);
 
   // Activity Tracking
   const [steps, setSteps] = useState(0);
@@ -35,9 +42,8 @@ export const AppProvider = ({ children }) => {
   ]);
 
   // AI Carbon Twin State
-  // Can be 'thriving' (high net score), 'stable' (neutral), or 'struggling' (negative net score)
   const [twinState, setTwinState] = useState("stable");
-  const [twinStyle, setTwinStyle] = useState("forest"); // forest, cyber, ocean
+  const [twinStyle, setTwinStyle] = useState("forest");
 
   useEffect(() => {
     // Update Twin State based on Net Carbon Score (highly sensitive)
@@ -50,34 +56,44 @@ export const AppProvider = ({ children }) => {
     }
   }, [netCarbonScore]);
 
-  // Calculate Rank based on XP
-  const getRank = (currentXp) => {
+  /**
+   * Calculates the user's current rank tier based on their accumulated XP.
+   */
+  const getRank = useCallback((currentXp) => {
     if (currentXp < 100) return { name: "Eco Rookie", level: 1, next: 100 };
     if (currentXp < 300) return { name: "Planet Protector", level: 2, next: 300 };
     if (currentXp < 600) return { name: "Climate Ninja", level: 3, next: 600 };
     return { name: "Future Earth Guardian", level: 4, next: "MAX" };
-  };
+  }, []);
 
-  const rank = getRank(xp);
+  const rank = useMemo(() => getRank(xp), [getRank, xp]);
 
-  const addXp = (amount) => setXp((prev) => prev + amount);
-
-  // Helper to add carbon saved
-  const addCarbonSaved = (amount) => setCarbonSaved(prev => prev + amount);
-  // Helper to add carbon generated
-  const addCarbonGenerated = (amount) => setCarbonGenerated(prev => prev + amount);
+  /**
+   * Adds experience points to the user's profile.
+   */
+  const addXp = useCallback((amount) => setXp((prev) => prev + amount), []);
+  const addCarbonSaved = useCallback((amount) => setCarbonSaved(prev => prev + amount), []);
+  const addCarbonGenerated = useCallback((amount) => setCarbonGenerated(prev => prev + amount), []);
 
   // System Glitch Mechanic
-  const systemStatus = netCarbonScore <= -500 ? "CORRUPTED" : "NORMAL";
+  const systemStatus = useMemo(() => netCarbonScore <= -500 ? "CORRUPTED" : "NORMAL", [netCarbonScore]);
+
+  // Memoize the entire context value to prevent unnecessary re-renders of the component tree
+  const contextValue = useMemo(() => ({
+    name, setName, goal, setGoal, xp, addXp, rank, 
+    steps, setSteps, screenTimeMinutes, setScreenTimeMinutes,
+    carbonSaved, addCarbonSaved, setCarbonSaved, carbonGenerated, addCarbonGenerated, setCarbonGenerated, netCarbonScore,
+    challenges, setChallenges, leagueData, twinState, twinStyle, setTwinStyle,
+    systemStatus
+  }), [
+    name, goal, xp, addXp, rank, 
+    steps, screenTimeMinutes, 
+    carbonSaved, addCarbonSaved, carbonGenerated, addCarbonGenerated, netCarbonScore, 
+    challenges, leagueData, twinState, twinStyle, systemStatus
+  ]);
 
   return (
-    <AppContext.Provider value={{ 
-      name, setName, goal, setGoal, xp, addXp, rank, 
-      steps, setSteps, screenTimeMinutes, setScreenTimeMinutes,
-      carbonSaved, addCarbonSaved, setCarbonSaved, carbonGenerated, addCarbonGenerated, setCarbonGenerated, netCarbonScore,
-      challenges, setChallenges, leagueData, twinState, twinStyle, setTwinStyle,
-      systemStatus
-    }}>
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );

@@ -65,7 +65,7 @@ export default function Home() {
           <div className="absolute top-6 right-4 w-6 h-1 bg-cyan-500/50"></div>
           
           <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-            <div>
+            <div aria-live="polite">
               <p className="text-xs text-slate-300 font-medium mb-1">Twin Status</p>
               <h3 className={`text-2xl font-bold ${currentTwin.color} flex items-center gap-2`}>
                 {currentTwin.label}
