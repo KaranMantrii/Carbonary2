@@ -1,0 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+}
+
+:root {
+  --cyber-bg: #050508;
+  --cyber-cyan: #00f3ff;
+  --cyber-cyan-dim: rgba(0, 243, 255, 0.2);
+  --cyber-magenta: #ff003c;
+  --cyber-yellow: #fcee0a;
+  --cyber-green: #39ff14;
+  --cyber-panel-bg: rgba(10, 12, 16, 0.85);
+  --cyber-border: rgba(0, 243, 255, 0.3);
+}
+
+@layer base {
+  body {
+    @apply text-slate-100 font-sans antialiased min-h-screen overflow-x-hidden;
+    background-color: var(--cyber-bg);
+    margin: 0;
+  }
+}
+
+/* Cinematic Cyber Grid Background */
+.cyber-bg-layer {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: -1;
+  background-color: var(--cyber-bg);
+  background-image: 
+    linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center center;
+  perspective: 1000px;
+}
+
+/* Vignette to focus attention to center */
+.cyber-bg-layer::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle at 50% 40%, transparent 30%, var(--cyber-bg) 95%);
+  pointer-events: none;
+}
+
+@layer utilities {
+  /* Geometric Panels */
+  .cyber-panel {
+    background: var(--cyber-panel-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--cyber-border);
+    position: relative;
+    clip-path: polygon(
+      0 12px, 
+      12px 0, 
+      100% 0, 
+      100% calc(100% - 12px), 
+      calc(100% - 12px) 100%, 
+      0 100%
+    );
+    transition: all 0.3s ease;
+  }
+
+  /* Internal glow constraint */
+  .cyber-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    box-shadow: inset 0 0 20px var(--cyber-cyan-dim);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Geometric Buttons */
+  .cyber-button {
+    background: rgba(0, 243, 255, 0.05);
+    border: 1px solid var(--cyber-cyan);
+    color: var(--cyber-cyan);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 2px;
+    position: relative;
+    cursor: pointer;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    transition: all 0.2s ease;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .cyber-button:hover {
+    background: var(--cyber-cyan);
+    color: #000;
+    box-shadow: 0 0 15px var(--cyber-cyan);
+  }
+
+  .cyber-button:active {
+    transform: scale(0.98);
+  }
+
+  /* Segmented LED Bar */
+  .segmented-bar {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .segmented-bar-fill {
+    height: 100%;
+    background-image: repeating-linear-gradient(
+      90deg,
+      currentColor,
+      currentColor 4px,
+      transparent 4px,
+      transparent 6px
+    );
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Glitch Hover Animation */
+  .glitch-hover:hover {
+    animation: glitch-anim 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+  }
+
+  @keyframes glitch-anim {
+    0% { transform: translate(0) }
+    20% { transform: translate(-2px, 2px) }
+    40% { transform: translate(-2px, -2px) }
+    60% { transform: translate(2px, 2px) }
+    80% { transform: translate(2px, -2px) }
+    100% { transform: translate(0) }
+  }
+
+  /* SYSTEM CORRUPTION GLITCH MECHANICS */
+  .system-corrupted .cyber-bg-layer {
+    background-color: #1a0005;
+    background-image: 
+      linear-gradient(rgba(255, 0, 60, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 0, 60, 0.05) 1px, transparent 1px);
+    animation: bg-flicker 2s infinite;
+  }
+
+  .system-corrupted {
+    --cyber-cyan: #ff003c; /* Override all cyan to neon red */
+    --cyber-cyan-dim: rgba(255, 0, 60, 0.2);
+    --cyber-border: rgba(255, 0, 60, 0.4);
+    animation: critical-shake 4s infinite cubic-bezier(.36,.07,.19,.97) both;
+  }
+
+  .system-corrupted .cyber-panel {
+    border-color: rgba(255, 0, 60, 0.6);
+  }
+
+  .system-corrupted .text-cyan-400,
+  .system-corrupted .text-cyan-500 {
+    color: #ff003c !important;
+    text-shadow: 2px 0 blue, -2px 0 yellow;
+  }
+
+  @keyframes bg-flicker {
+    0% { opacity: 1; }
+    5% { opacity: 0.8; }
+    10% { opacity: 1; }
+    15% { opacity: 0.3; }
+    20% { opacity: 1; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes critical-shake {
+    0%, 90% { transform: translate3d(0, 0, 0); }
+    91% { transform: translate3d(-2px, 0, 0) skewX(2deg); filter: hue-rotate(90deg); }
+    93% { transform: translate3d(4px, 0, 0) skewX(-2deg); }
+    95% { transform: translate3d(-4px, 2px, 0); filter: hue-rotate(-90deg); }
+    97% { transform: translate3d(2px, -2px, 0); }
+    99% { transform: translate3d(-2px, 0, 0); }
+    100% { transform: translate3d(0, 0, 0); filter: hue-rotate(0deg); }
+  }
+}
